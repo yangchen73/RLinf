@@ -55,6 +55,19 @@ def count_trajectories(metrics_dict):
         raise TypeError(f"Unsupported tensor type: {type(first_tensor)}")
 
 
+def _normalize_metric_shard(shard: object) -> torch.Tensor:
+    """One rank's metric -> 1D CPU float tensor."""
+    if shard is None:
+        return torch.tensor([], dtype=torch.float32)
+    if isinstance(shard, torch.Tensor):
+        return shard.detach().cpu().reshape(-1).float()
+    if isinstance(shard, list):
+        if not shard:
+            return torch.tensor([], dtype=torch.float32)
+        return torch.cat([x.detach().cpu().reshape(-1).float() for x in shard], dim=0)
+    return torch.as_tensor(shard, dtype=torch.float32).cpu().reshape(-1)
+
+
 def compute_evaluate_metrics(eval_metrics_list):
     """
     List of evaluate metrics, list length stands for rollout process
@@ -62,8 +75,13 @@ def compute_evaluate_metrics(eval_metrics_list):
     Returns:
         dict: Aggregated metrics with mean values and trajectory count
     """
+    if not eval_metrics_list:
+        return {}
+
     all_eval_metrics = {}
-    env_info_keys = eval_metrics_list[0].keys()
+    env_info_keys = sorted(
+        set().union(*(m.keys() for m in eval_metrics_list if m is not None))
+    )
 
     # Count trajectories from each process
     # If num_trajectories is already in the metrics, use it; otherwise count from tensor shape
@@ -74,12 +92,15 @@ def compute_evaluate_metrics(eval_metrics_list):
 
     for env_info_key in env_info_keys:
         all_eval_metrics[env_info_key] = [
-            eval_metrics[env_info_key] for eval_metrics in eval_metrics_list
+            eval_metrics.get(env_info_key) if eval_metrics is not None else None
+            for eval_metrics in eval_metrics_list
         ]
 
     for key in all_eval_metrics:
+        shards = [_normalize_metric_shard(s) for s in all_eval_metrics[key]]
+        stacked = torch.concat(shards).float()
         all_eval_metrics[key] = (
-            torch.concat(all_eval_metrics[key]).float().mean().numpy()
+            stacked.mean().detach().cpu().numpy() if stacked.numel() > 0 else 0.0
         )
 
     # Add total trajectory count to metrics
