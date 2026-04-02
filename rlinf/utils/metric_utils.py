@@ -27,16 +27,18 @@ def compute_split_num(num, split_num):
 
 
 def _normalize_metric_shard(shard: object) -> torch.Tensor:
-    """One rank's metric -> 1D float tensor."""
+    """One rank's metric -> 1D float tensor on CPU."""
     if shard is None:
         return torch.tensor([], dtype=torch.float32)
     if isinstance(shard, torch.Tensor):
-        return shard.detach().reshape(-1).float()
+        return shard.detach().cpu().reshape(-1).float()
     if isinstance(shard, list):
         if not shard:
             return torch.tensor([], dtype=torch.float32)
-        return torch.cat([x.detach().reshape(-1).float() for x in shard], dim=0)
-    return torch.as_tensor(shard, dtype=torch.float32).reshape(-1)
+        return torch.cat(
+            [x.detach().cpu().reshape(-1).float() for x in shard], dim=0
+        )
+    return torch.as_tensor(shard, dtype=torch.float32).cpu().reshape(-1)
 
 
 def count_trajectories(metrics_dict):
