@@ -194,6 +194,27 @@ The top-level training config is
 
    bash examples/embodiment/run_embodiment.sh embodichain_ppo_cart_pole
 
+**If you hit missing files or dataset download errors**
+
+You do **not** need to download assets up front when everything already works. If a
+run fails because EmbodiChain cannot find task or simulation resources, try:
+
+1. **Set the data root** (where downloads should be stored):
+
+   .. code-block:: bash
+
+      export EMBODICHAIN_DATA_ROOT=/path/to/data
+
+2. **Download CartPole and shared simulation resources** (same Python env as
+   ``embodichain``):
+
+   .. code-block:: bash
+
+      python -m embodichain.data download --name CartPole
+      python -m embodichain.data download --name SimResources
+
+3. **Retry** the training command in step 3.
+
 **4. Adapt to New Tasks**
 
 To run another EmbodiChain task:
