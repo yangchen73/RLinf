@@ -35,9 +35,7 @@ def _normalize_metric_shard(shard: object) -> torch.Tensor:
     if isinstance(shard, list):
         if not shard:
             return torch.tensor([], dtype=torch.float32)
-        return torch.cat(
-            [x.detach().cpu().reshape(-1).float() for x in shard], dim=0
-        )
+        return torch.cat([x.detach().cpu().reshape(-1).float() for x in shard], dim=0)
     return torch.as_tensor(shard, dtype=torch.float32).cpu().reshape(-1)
 
 
