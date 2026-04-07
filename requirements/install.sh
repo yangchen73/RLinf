@@ -868,7 +868,7 @@ install_frankasim_env() {
 install_embodichain_env() {
     if [ "$NO_ROOT" -eq 0 ] && command -v apt-get &> /dev/null; then
         sudo apt-get update -y
-        sudo apt-get install -y --no-install-recommends python3.11 python3.11-dev
+        sudo apt-get install -y --no-install-recommends python3.11 python3.11-dev libvulkan1 vulkan-tools mesa-vulkan-drivers
     fi
     local embodichain_dir
     embodichain_dir=$(clone_or_reuse_repo EMBODICHAIN_PATH "$VENV_DIR/EmbodiChain" https://github.com/DexForce/EmbodiChain.git)
