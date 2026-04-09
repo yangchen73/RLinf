@@ -115,6 +115,7 @@ Multiple Backend Integrations
           <li><a href="https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/calvin.html">CALVIN</a> ✅</li>
           <li><a href="https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/robocasa.html">RoboCasa</a> ✅</li>
           <li><a href="https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/frankasim.html">Franka-Sim</a> ✅</li>
+          <li><a href="https://rlinf.readthedocs.io/en/latest/rst_source/examples/embodied/embodichain.html">EmbodiChain</a> ✅</li>
           <li>More...</li>
         </ul>
       </td>
