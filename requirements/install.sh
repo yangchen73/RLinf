@@ -648,8 +648,8 @@ install_dreamzero_model() {
 }
 
 install_env_only() {
-    SKIP_ROS=${SKIP_ROS:-0}
     create_and_sync_venv
+    SKIP_ROS=${SKIP_ROS:-0}
     case "$ENV_NAME" in
         franka)
             uv sync --extra franka --active $NO_INSTALL_RLINF_CMD
