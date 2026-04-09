@@ -93,8 +93,9 @@ def compute_evaluate_metrics(eval_metrics_list):
 
     for env_info_key in env_info_keys:
         all_eval_metrics[env_info_key] = [
-            eval_metrics.get(env_info_key) if eval_metrics is not None else None
+            eval_metrics[env_info_key]
             for eval_metrics in eval_metrics_list
+            if eval_metrics is not None and env_info_key in eval_metrics
         ]
 
     for key in all_eval_metrics:
