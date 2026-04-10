@@ -80,23 +80,24 @@ def compute_evaluate_metrics(eval_metrics_list):
         return {}
 
     all_eval_metrics = {}
-    env_info_keys = sorted(
-        set().union(*(m.keys() for m in eval_metrics_list if m is not None))
-    )
+    env_info_keys: set[str] = set()
+    for eval_metrics in eval_metrics_list:
+        env_info_keys.update(eval_metrics.keys())
 
     # Count trajectories from each process
-    # If num_trajectories is already in the metrics, use it; otherwise count from tensor shape
     trajectory_counts = []
     for eval_metrics in eval_metrics_list:
         count = count_trajectories(eval_metrics)
         trajectory_counts.append(count)
 
     for env_info_key in env_info_keys:
-        all_eval_metrics[env_info_key] = [
+        metric = [
             eval_metrics[env_info_key]
             for eval_metrics in eval_metrics_list
-            if eval_metrics is not None and env_info_key in eval_metrics
+            if env_info_key in eval_metrics
         ]
+        if metric:
+            all_eval_metrics[env_info_key] = metric
 
     for key in all_eval_metrics:
         shards = [_normalize_metric_shard(s) for s in all_eval_metrics[key]]
