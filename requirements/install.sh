@@ -908,10 +908,8 @@ install_embodichain_env() {
         sudo apt-get update -y
         sudo apt-get install -y --no-install-recommends python3.11 python3.11-dev libvulkan1 vulkan-tools mesa-vulkan-drivers
     fi
-    local embodichain_dir
-    embodichain_dir=$(clone_or_reuse_repo EMBODICHAIN_PATH "$VENV_DIR/EmbodiChain" https://github.com/DexForce/EmbodiChain.git)
-    uv pip install -e "$embodichain_dir" --extra-index-url http://pyp.open3dv.site:2345/simple/ --trusted-host pyp.open3dv.site
-    echo "export EMBODICHAIN_PATH=$(realpath "$embodichain_dir")" >> "$VENV_DIR/bin/activate"
+
+    uv pip install embodichain --extra-index-url http://pyp.open3dv.site:2345/simple/ --trusted-host pyp.open3dv.site
 }
 
 install_habitat_env() {

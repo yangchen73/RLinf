@@ -46,11 +46,12 @@ Set ``gym_config_path`` to an EmbodiChain task JSON file. RLinf resolves the
 path in the following order:
 
 1. Absolute path
-2. ``${EMBODICHAIN_PATH}/<relative path>``
-3. A path next to the installed ``embodichain`` package
+2. If ``EMBODICHAIN_PATH`` is set: ``${EMBODICHAIN_PATH}/<relative path>`` (optional
+   override for a local checkout)
+3. A path next to the installed ``embodichain`` package (default after ``pip install``)
 
-This lets you use either a local EmbodiChain checkout or an installed package
-layout.
+With a normal pip install, configs are resolved from the package without setting
+``EMBODICHAIN_PATH``.
 
 **Observation and Action Spaces**
 
@@ -142,23 +143,19 @@ requirements:
    cd <path_to_RLinf_repository>
    bash requirements/install.sh embodied --env embodichain
 
-This will clone `EmbodiChain <https://github.com/DexForce/EmbodiChain.git>`_
-(or reuse ``EMBODICHAIN_PATH`` if already set) and append
-``export EMBODICHAIN_PATH=...`` to the virtual environment ``activate``
-script.
+This installs the latest EmbodiChain release from the project extra index.
+Gym task configs are loaded from the installed package; you do not need
+``EMBODICHAIN_PATH`` for typical use.
 
-You can also install EmbodiChain manually in editable mode and then export the
-path explicitly:
+To point at a different EmbodiChain tree (for example a local git checkout),
+export:
 
 .. code-block:: bash
 
    export EMBODICHAIN_PATH=/path/to/EmbodiChain
 
-The helper launcher ``examples/embodiment/run_embodiment.sh`` defaults
-``EMBODICHAIN_PATH`` to ``/path/to/EmbodiChain`` if it is not set. Set it to your real
-EmbodiChain checkout, or use ``bash requirements/install.sh embodied --env
-embodichain`` so ``EMBODICHAIN_PATH`` is written into your virtual environment
-``activate`` script.
+The helper launcher ``examples/embodiment/run_embodiment.sh`` does not set a
+default ``EMBODICHAIN_PATH``; leave it unset to use the installed package paths.
 
 Quick Start
 -----------
@@ -232,5 +229,6 @@ Evaluation and CI
 -----------------
 
 EmbodiChain CartPole is also used by embodied end-to-end tests under
-``tests/e2e_tests/embodied/``. When running those tests locally, make sure
-``EMBODICHAIN_PATH`` points to a valid EmbodiChain checkout.
+``tests/e2e_tests/embodied/``. After installing ``embodichain`` into the test
+environment, configs resolve from the package; set ``EMBODICHAIN_PATH`` only if
+you need a non-default checkout.
