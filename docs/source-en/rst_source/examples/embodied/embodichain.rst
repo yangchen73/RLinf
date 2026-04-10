@@ -46,8 +46,7 @@ Set ``gym_config_path`` to an EmbodiChain task JSON file. RLinf resolves the
 path in the following order:
 
 1. Absolute path
-2. If ``EMBODICHAIN_PATH`` is set: ``${EMBODICHAIN_PATH}/<relative path>`` (optional
-   override for a local checkout)
+2. If ``EMBODICHAIN_PATH`` is set: ``${EMBODICHAIN_PATH}/relative path`` (optional override for a local checkout)
 3. A path next to the installed ``embodichain`` package (default after ``pip install``)
 
 With a normal pip install, configs are resolved from the package without setting

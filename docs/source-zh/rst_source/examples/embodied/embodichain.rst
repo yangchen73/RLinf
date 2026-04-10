@@ -43,7 +43,7 @@ VLA 式多模态输入的任务。
 该路径：
 
 1. 绝对路径
-2. 若设置了 ``EMBODICHAIN_PATH``：``${EMBODICHAIN_PATH}/<相对路径>``（可选，用于本地仓库覆盖）
+2. 若设置了 ``EMBODICHAIN_PATH``，则使用 ``${EMBODICHAIN_PATH}/相对路径``（可选，用于本地仓库覆盖）
 3. 安装后的 ``embodichain`` 包附近的路径（``pip install`` 后的默认情况）
 
 正常使用 ``pip install`` 时，无需设置 ``EMBODICHAIN_PATH``，即可从已安装包解析配置。
