@@ -18,6 +18,7 @@ FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 AS base-image-embodied-frankasim
 FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 AS base-image-embodied-wan
 FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 AS base-image-embodied-liberopro
 FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 AS base-image-embodied-liberoplus
+FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 AS base-image-embodied-embodichain
 
 # Franka depends on ros-noetic, which is not available on Ubuntu 22.04
 FROM ubuntu:20.04 AS base-image-embodied-franka
@@ -306,6 +307,15 @@ RUN bash requirements/install.sh embodied --venv openvla --model openvla --env f
 
 # Set default env
 RUN echo "source ${UV_PATH}/openvla/bin/activate" >> ~/.bashrc
+
+##################################################################################################
+# Embodied: EmbodiChain
+##################################################################################################
+FROM embodied-common-image AS embodied-embodichain-image
+
+RUN bash requirements/install.sh embodied --venv embodichain --env embodichain
+
+RUN echo "source ${UV_PATH}/embodichain/bin/activate" >> ~/.bashrc
 
 ##################################################################################################
 # Embodied: LIBERO-Pro
