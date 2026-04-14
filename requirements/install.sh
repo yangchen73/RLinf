@@ -911,11 +911,6 @@ install_frankasim_env() {
 }
 
 install_embodichain_env() {
-    if [ "$NO_ROOT" -eq 0 ] && command -v apt-get &> /dev/null; then
-        sudo apt-get update -y
-        sudo apt-get install -y --no-install-recommends python3.11 python3.11-dev libvulkan1 vulkan-tools mesa-vulkan-drivers
-    fi
-
     uv pip install embodichain --extra-index-url http://pyp.open3dv.site:2345/simple/ --trusted-host pyp.open3dv.site
 }
 
