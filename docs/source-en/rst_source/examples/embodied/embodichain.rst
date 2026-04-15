@@ -146,6 +146,29 @@ This installs the latest EmbodiChain release from the project extra index.
 Gym task configs are loaded from the installed package; you do not need
 ``EMBODICHAIN_PATH`` for typical use.
 
+.. note::
+
+   **Current Limitation**
+
+   ``dexsim``, the simulator dependency of EmbodiChain, requires the
+   ``libpython3.xx.so`` library. Currently, ``dexsim`` resolves this library
+   through system paths (e.g., ``/usr/local/lib``) or Conda library paths via
+   rpath, but does not fully support UV's Python runtime layout yet.
+
+   If you encounter ``libpython3.11.so`` related runtime errors, we recommend
+   using a Conda environment instead of UV:
+
+   .. code-block:: bash
+
+      # Create a Conda environment (recommended)
+      conda create -n rlinf python=3.11
+      conda activate rlinf
+      pip install uv
+      # Then run the installation script, but skip UV's Python management
+      bash requirements/install.sh embodied --env embodichain --no-root
+
+   We plan to improve UV support in the next ``dexsim`` release.
+
 To point at a different EmbodiChain tree (for example a local git checkout),
 export:
 

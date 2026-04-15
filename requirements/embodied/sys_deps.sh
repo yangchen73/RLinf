@@ -119,8 +119,6 @@ install_deps_apt() {
         libpython3-stdlib \
         imagemagick \
         libmagickwand-dev \
-        python3.11 \
-        python3.11-dev \
         libvulkan1 \
         vulkan-tools \
         mesa-vulkan-drivers || {
