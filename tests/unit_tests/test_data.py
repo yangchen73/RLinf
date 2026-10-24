@@ -100,6 +100,7 @@ def test_openpi_sft_rejects_tokenizer_state_mode_mismatch():
     """A YAML state override must agree with the selected SFT tokenizer."""
     import dataclasses
 
+    pytest.importorskip("openpi")
     from rlinf.data.datasets.openpi.official_sft_data_loader import (
         _validate_openpi_model_shape,
     )
@@ -145,6 +146,7 @@ def test_openpi_sft_loader_requires_concrete_local_lerobot_root(tmp_path):
 @pytest.fixture
 def openpi_sft_cfg(tmp_path):
     """Provide one local dataset and explicit identity normalization."""
+    pytest.importorskip("openpi")
     root = tmp_path / "train"
     (root / "meta").mkdir(parents=True)
     (root / "meta/info.json").write_text("{}")
@@ -3749,6 +3751,7 @@ class _OpenPIResumeRows(torch.utils.data.Dataset):
 
 
 def _resume_openpi_loader(*, workers=0, rank=0, world_size=2, batch_size=2):
+    pytest.importorskip("openpi")
     from rlinf.data.datasets.openpi.official_sft_data_loader import (
         StatefulOpenPIDataLoader,
     )
