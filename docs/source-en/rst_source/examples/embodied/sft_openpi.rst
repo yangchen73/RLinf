@@ -516,6 +516,9 @@ with the deterministic 95% top-left front-image crop. The wrist image keeps
 its full field of view. This option defaults to ``false`` and does not consume
 augmentation RNG. Standalone sampling with this option requires ``model.eval()``;
 the PPO sampler and actor replay apply the same crop in their respective modes.
+SFT keeps its random crop, rotation, and color jitter, including when this
+inference option is enabled. Training draws use the global PyTorch RNG unless
+an explicit generator is supplied.
 
 For fresh OpenPI SFT and embodied FSDP actor runs, ``actor.seed`` initializes
 Python, NumPy and PyTorch before constructing the model, so actor ranks start

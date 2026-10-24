@@ -259,17 +259,21 @@ def preprocess_observation(
                     crop_h, crop_w = int(h * 0.95), int(w * 0.95)
                     top = (
                         torch.randint(0, h - crop_h + 1, (1,), generator=rng).item()
-                        if train else 0
+                        if train
+                        else 0
                     )
                     left = (
                         torch.randint(0, w - crop_w + 1, (1,), generator=rng).item()
-                        if train else 0
+                        if train
+                        else 0
                     )
                     aug_image = TF.crop(aug_image, top, left, crop_h, crop_w)
                     aug_image = TF.resize(aug_image, [h, w], antialias=True)
 
                     # Random rotation (-5 to 5 degrees)
-                    angle = (torch.rand(1, generator=rng).item() * 10 - 5) if train else 0.0
+                    angle = (
+                        (torch.rand(1, generator=rng).item() * 10 - 5) if train else 0.0
+                    )
                     aug_image = TF.rotate(aug_image, angle, fill=0)
 
                 # Color jitter
