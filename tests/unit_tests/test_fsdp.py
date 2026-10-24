@@ -202,6 +202,8 @@ def _checkpoint_manager(
     checkpoint_format="dcp",
     full_weights=True,
     communication_backend=None,
+    world_size=1,
+    rank=0,
 ):
     cfg = OmegaConf.create(
         {
@@ -216,7 +218,7 @@ def _checkpoint_manager(
             },
         }
     )
-    manager = FSDPModelManager(cfg, world_size=1, rank=0)
+    manager = FSDPModelManager(cfg, world_size=world_size, rank=rank)
     manager.model = torch.nn.Linear(4, 3)
     manager.optimizer = torch.optim.AdamW(manager.model.parameters(), lr=0.01)
     manager.lr_scheduler = torch.optim.lr_scheduler.StepLR(
@@ -1459,3 +1461,89 @@ def test_openpi_sft_uses_activation_checkpointing(monkeypatch):
     assert model.img.stem.weight.grad is not None
     assert model.llm.layers[0].attn.q_proj[0].weight.grad is not None
     assert model.action_out_proj.weight.grad is not None
+
+
+def _check_two_rank_checkpoint_resume(rank, root):
+    import random
+
+    import numpy as np
+    from torch.nn.parallel import DistributedDataParallel
+
+    from rlinf.utils.utils import seed_everything
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setenv("LOCAL_RANK", str(rank))
+        patch.setattr(Worker, "torch_device_type", "cpu")
+        patch.setattr(
+            Worker,
+            "torch_platform",
+            SimpleNamespace(
+                set_device=lambda _: None,
+                current_device=lambda: torch.device("cpu"),
+                synchronize=lambda: None,
+                ipc_collect=lambda: None,
+                empty_cache=lambda: None,
+                is_available=lambda: False,
+            ),
+        )
+        dist.init_process_group(
+            "gloo",
+            init_method=f"file://{root}/rendezvous",
+            rank=rank,
+            world_size=2,
+            timeout=timedelta(seconds=90),
+        )
+        try:
+            seed_everything(37)
+            manager = _checkpoint_manager(
+                communication_backend="gloo",
+                full_weights=False,
+                world_size=2,
+                rank=rank,
+            )
+            manager.model = DistributedDataParallel(manager.model)
+            seed_everything(101 + rank)
+            path = str(Path(root) / "checkpoint")
+            manager.save_checkpoint(path, step=1000)
+            default_group = dist.distributed_c10d._get_default_group()
+
+            def update_from_rng():
+                draws = (random.random(), float(np.random.rand()), torch.randn(2, 4))
+                manager.optimizer.zero_grad()
+                manager.model(draws[2] + draws[0] + draws[1]).square().mean().backward()
+                manager.optimizer.step()
+                manager.lr_scheduler.step()
+                return draws
+
+            expected_draws = update_from_rng()
+            expected_weights = {
+                name: value.clone()
+                for name, value in manager.model.state_dict().items()
+            }
+            expected_lr = manager.lr_scheduler.get_last_lr()
+            manager.load_checkpoint(path)
+            actual_draws = update_from_rng()
+            assert actual_draws[:2] == expected_draws[:2]
+            torch.testing.assert_close(
+                actual_draws[2], expected_draws[2], rtol=0, atol=0
+            )
+            for name, value in manager.model.state_dict().items():
+                torch.testing.assert_close(
+                    value, expected_weights[name], rtol=0, atol=0
+                )
+            assert manager.lr_scheduler.get_last_lr() == expected_lr
+            assert dist.distributed_c10d._get_default_group() is default_group
+            torch.save(actual_draws, Path(root) / f"rank_{rank}.pt")
+        finally:
+            dist.destroy_process_group()
+
+
+def test_two_rank_gloo_checkpoint_restores_rank_rng_and_next_update(tmp_path):
+    """Each rank restores its own random streams and the exact next Adam update."""
+    torch.multiprocessing.spawn(
+        _check_two_rank_checkpoint_resume, args=(str(tmp_path),), nprocs=2, join=True
+    )
+    first = torch.load(tmp_path / "rank_0.pt", weights_only=True)
+    second = torch.load(tmp_path / "rank_1.pt", weights_only=True)
+    assert first[:2] != second[:2]
+    assert not torch.equal(first[2], second[2])
