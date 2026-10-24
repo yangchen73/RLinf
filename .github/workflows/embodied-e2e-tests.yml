@@ -2013,8 +2013,8 @@ jobs:
           unset PYTHONPATH
           export REPO_PATH=$(pwd)
           source .venv/bin/activate
-          export STACK_CUBE_MODEL_PYTHON="$REPO_PATH/.venv/bin/python"
-          export STACK_CUBE_ENV_PYTHON="$REPO_PATH/.venv-embodichain/bin/python"
+          export STACK_CUBE_MODEL_PYTHON="$VIRTUAL_ENV/bin/python"
+          export STACK_CUBE_ENV_PYTHON="${VIRTUAL_ENV}-embodichain/bin/python"
           export OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 JAX_PLATFORMS=cpu
           export LD_LIBRARY_PATH="$(python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))'):${LD_LIBRARY_PATH:-}"
           export STACK_CI_RUN=$(mktemp -d "${RUNNER_TEMP:-/tmp}/embodichain-stack-cube.XXXXXX")
@@ -2029,7 +2029,6 @@ jobs:
           if [ -n "${STACK_CI_RUN:-}" ]; then rm -rf "$STACK_CI_RUN"; fi
 
   embodied-gr00t_n1d6-libero-test:
->>>>>>> a4695a4d (feat(embodichain): add pi05 stack cube workflow)
     runs-on: embodied
     steps:
       - name: Checkout code

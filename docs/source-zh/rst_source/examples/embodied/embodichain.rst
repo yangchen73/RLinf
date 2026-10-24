@@ -344,7 +344,7 @@ Statistics 命令输出 ``norm_stats.json`` 和包含源文件 hashes 的 manife
      runner.logger.log_path="$STACK_RUN/training" \
      runner.logger.experiment_name=stack_cube_smoke actor.seed=0
 
-该配置从 base 训练 1,000 个 optimizer step，global batch 为 32、micro batch 为 1，学习率为 ``2.5e-5``，warmup 为 100 步。Loss 监督完整 H10×32 tensor，推理执行 C5，并使用 5 步 denoising。Stack Cube 的 SFT 与评估 recipe 均启用 ``eval_sft_image_crop: true``：仅前视图像执行与 SFT 一致的左上角 95% 裁剪和缩放，腕部图像保持原样。该选择与其他 recipe 的默认设置不同。
+该配置从 base 训练 1,000 个 optimizer step，global batch 为 32、micro batch 为 1，学习率为 ``2.5e-5``，warmup 为 100 步。Loss 监督完整 H10×32 tensor，推理执行 C5，并使用 5 步 denoising。Stack Cube recipe 在推理时启用 ``eval_sft_image_crop: true``：仅前视图像执行左上角 95% 裁剪和缩放，腕部图像保留完整视野。SFT 训练从已设置 seed 的 PyTorch RNG 取样，执行随机裁剪、旋转和 color jitter；推理选项不会改变训练增强。下文历史结果使用较早的固定裁剪训练实现，不能验证当前训练路径的任务表现。
 
 每 100 步导出权重，第 1,000 步保存可恢复的 optimizer/RNG state。读取导出结果前，等待 ``actor/checkpoint_metadata.json`` 中出现 ``complete: true``。SFT worker 不内置 validation；所需 GPU 可用后，通过外部 evaluator 评估：
 
@@ -620,6 +620,6 @@ Stack Cube 历史验证结果
 
 上面给出了模型、reference dataset、SDK 和 Panda 资产的固定版本下载或 checkout 命令。已测 V2 数据包含 120 条轨迹、45,600 个 pre-action frame；每集执行 380 个专家命令，采集时再保持 70 步，保持阶段不进入 SFT。生产 renderer role 分配为 64 条 train-world 和 56 条 eval-world 轨迹，两种 role 均使用训练请求。上面的新采集 recipe 与之不同，不能重建这批 V2 图像。
 
-选中的 SFT 权重、精确 V2 数据集和 PPO 权重已在本地暂存，尚无公开下载 URL。当前运行 PPO 需要自行提供通过任务验证的 SFT checkpoint 及配套 normalization；证据目录中的 statistics 不能代替对应训练数据。Docker 镜像构建和远程 CI 执行仍待完成，本轮包含镜像 target 与 workflow 接入供审阅。独立 test／OOD、其余 source／seed 实验和原生 IsaacLab 对照仍待完成。
+原作者尚未公开选中的 SFT 权重、精确 V2 数据集和 PPO 权重。本 checkout 中也没有这些资产，仅凭当前分支无法复现历史 policy 得分。当前运行 PPO 需要自行提供通过任务验证的 SFT checkpoint 及配套 normalization；证据目录中的 statistics 不能代替对应训练数据。Docker 镜像构建和远程 CI 执行仍待完成，本轮包含镜像 target 与 workflow 接入供审阅。独立 test／OOD、其余 source／seed 实验和原生 IsaacLab 对照仍待完成。
 
 recipe 中的 6/27 准入值及实验设定的提升目标属于实验选择，不是 RLinf PR 合并要求。1,000 epoch 是训练预算，结果表仅报告实际完成的 50 epoch 阶段。本示例不声称 renderer 像素、原生自动 reset 行为完全一致，也不声称 SOTA 或多 seed 提升。

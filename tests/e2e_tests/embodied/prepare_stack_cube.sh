@@ -5,9 +5,9 @@
 set -euo pipefail
 : "${STACK_CI_RUN:?Set STACK_CI_RUN to a new CI output directory.}"
 : "${STACK_CUBE_ENV_PYTHON:?Set the SDK interpreter path.}"
-export EMBODICHAIN_DATA_ROOT=/workspace/dataset/embodichain_data
+export EMBODICHAIN_DATA_ROOT="${EMBODICHAIN_DATA_ROOT:-/workspace/dataset/embodichain_data}"
 CUDA_VISIBLE_DEVICES="" "$STACK_CUBE_ENV_PYTHON" -m embodichain.data download --name SimResources
-export STACK_CUBE_SFT_MODEL=/workspace/dataset/lerobot-pi05-base-22c30e5b
+export STACK_CUBE_SFT_MODEL="${STACK_CUBE_SFT_MODEL:-/workspace/dataset/lerobot-pi05-base-22c30e5b}"
 hf download lerobot/pi05_base --revision 22c30e5b34f9e7ab738b1b34fc2fc5ecfe2d28f0 --local-dir "$STACK_CUBE_SFT_MODEL"
 hf download RLinf/IsaacLab-Stack-Cube-Data --repo-type dataset --revision 2e27f04b2e31f293fd020164917e4cce09e108d6 --local-dir "$STACK_CI_RUN/reference"
 python - "$STACK_CI_RUN/reference/source_revision.json" <<'PY'

@@ -443,9 +443,12 @@ it is separate from the immutable dataset/statistics audit.
 This recipe trains 1,000 optimizer steps from base with global batch 32,
 micro batch 1, learning rate ``2.5e-5``, and 100 warmup steps. It supervises the
 full H10×32 tensor, executes C5 during inference, and uses five denoising steps.
-The Stack Cube SFT and evaluation recipes enable ``eval_sft_image_crop: true``:
-only the front image receives the SFT-compatible 95% top-left crop and resize.
-The wrist image is preserved. This differs from the default of unrelated recipes.
+The Stack Cube recipes enable ``eval_sft_image_crop: true`` for inference:
+only the front image receives the 95% top-left crop and resize; the wrist image
+keeps its full view. SFT training uses random crop, rotation, and color jitter
+from the seeded PyTorch RNG. The inference option does not change training
+augmentation. Historical results below used the earlier fixed-crop training
+implementation and do not qualify this updated training path.
 
 Weights are exported every 100 steps; recoverable optimizer/RNG state is saved
 at step 1,000. Wait for ``actor/checkpoint_metadata.json`` to contain
@@ -925,6 +928,6 @@ Reproduction Status and Limits
 
 The model, reference dataset, SDK and Panda sources have pinned download or checkout instructions above. The measured V2 dataset contains 120 episodes and 45,600 pre-action frames: 380 expert commands per episode, followed during collection by 70 hold steps excluded from SFT. Its production renderer roles comprise 64 train-world and 56 eval-world episodes; both use training requests. The fresh collector documented above is a separate recipe and does not recreate these V2 images.
 
-The selected SFT weights, exact V2 dataset and trained PPO weights are staged locally but have no public download URLs yet. To run PPO now, supply your own task-qualified SFT checkpoint and its matching normalization; the checked-in evidence statistics alone do not replace its training dataset. Docker build and remote CI execution remain pending; the image target and workflow wiring are included for review. Independent test/OOD evaluation, the remaining source/seed arms and the native IsaacLab comparison remain pending.
+The original author has not published the selected SFT weights, exact V2 dataset or trained PPO weights. Those assets are unavailable in this checkout, so the historical policy scores cannot be reproduced from this branch alone. To run PPO now, supply your own task-qualified SFT checkpoint and its matching normalization; the checked-in evidence statistics alone do not replace its training dataset. Docker build and remote CI execution remain pending; the image target and workflow wiring are included for review. Independent test/OOD evaluation, the remaining source/seed arms and the native IsaacLab comparison remain pending.
 
 The recipe's 6/27 qualification threshold and any experiment-specific improvement target are experiment choices, not RLinf PR merge requirements. The 1,000-epoch setting is a training budget; the results table reports only the completed 50-epoch stages. This example does not claim equivalent renderer pixels, native automatic-reset behavior, SOTA performance or multi-seed improvement.
