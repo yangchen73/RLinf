@@ -4055,6 +4055,29 @@ def test_stack_cube_panda_preparation_preserves_meshes_and_control_contract(tmp_
     assert ET.parse(source).getroot().findall(".//mimic")
 
 
+@pytest.mark.parametrize(
+    "asset_name", ["visual/hand.dae", "collision/hand.stl", "visual/texture.png"]
+)
+def test_stack_cube_panda_preparation_rejects_lfs_pointers(tmp_path, asset_name):
+    from toolkits.lerobot.prepare_stack_cube_data import prepare_panda
+
+    package = tmp_path / "franka_description"
+    (package / "robots").mkdir(parents=True)
+    source = package / "robots/panda_arm_hand.urdf"
+    source.write_text('<robot name="panda"/>')
+    asset = package / "meshes" / asset_name
+    asset.parent.mkdir(parents=True)
+    asset.write_text(
+        f"version https://git-lfs.github.com/spec/v1\noid sha256:{'0' * 64}\nsize 100\n"
+    )
+    output = tmp_path / "prepared"
+
+    with pytest.raises(ValueError, match="Git LFS pointer.*git lfs pull"):
+        prepare_panda(source, output)
+
+    assert not output.exists()
+
+
 def test_stack_cube_normalization_keeps_episode_boundaries_and_all_frames(tmp_path):
     pytest.importorskip("openpi.shared.normalize")
     from toolkits.lerobot.calculate_stack_cube_norm_stats import calculate_statistics

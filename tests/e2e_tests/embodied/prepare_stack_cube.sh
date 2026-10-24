@@ -22,6 +22,9 @@ export STACK_CUBE_NORM_STATS="$STACK_CI_RUN/split/train/norm_stats.json"
 git clone --filter=blob:none --no-checkout --depth 1 --branch v5.1.0 https://github.com/isaac-sim/IsaacSim.git "$STACK_CI_RUN/isaacsim_source"
 git -C "$STACK_CI_RUN/isaacsim_source" sparse-checkout set source/extensions/isaacsim.asset.importer.urdf/data/urdf/robots/franka_description
 git -C "$STACK_CI_RUN/isaacsim_source" checkout --detach 47d886f2858d1ceed556b21c88927aa67bc81c12
+# Materialize only the Panda assets in this sparse checkout.
+git -C "$STACK_CI_RUN/isaacsim_source" lfs install --local
+git -C "$STACK_CI_RUN/isaacsim_source" ls-files -z -- source/extensions/isaacsim.asset.importer.urdf/data/urdf/robots/franka_description/meshes | git -C "$STACK_CI_RUN/isaacsim_source" checkout-index --force -z --stdin
 python toolkits/lerobot/prepare_stack_cube_data.py prepare-panda --source "$STACK_CI_RUN/isaacsim_source/source/extensions/isaacsim.asset.importer.urdf/data/urdf/robots/franka_description/robots/panda_arm_hand.urdf" --output "$STACK_CI_RUN/assets"
 export STACK_CUBE_PANDA_URDF="$STACK_CI_RUN/assets/panda.urdf"
 export STACK_CUBE_PPO_TRAIN_REQUESTS="$STACK_CI_RUN/train.json"

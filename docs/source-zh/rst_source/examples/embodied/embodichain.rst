@@ -244,6 +244,10 @@ EmbodiChain CartPole 也被 embodied e2e 配置覆盖，位于
    git -C "$STACK_ASSET_SOURCE" sparse-checkout set \
      source/extensions/isaacsim.asset.importer.urdf/data/urdf/robots/franka_description
    git -C "$STACK_ASSET_SOURCE" checkout --detach 47d886f2858d1ceed556b21c88927aa67bc81c12
+   git -C "$STACK_ASSET_SOURCE" lfs install --local
+   git -C "$STACK_ASSET_SOURCE" ls-files -z -- \
+     source/extensions/isaacsim.asset.importer.urdf/data/urdf/robots/franka_description/meshes | \
+     git -C "$STACK_ASSET_SOURCE" checkout-index --force -z --stdin
    export STACK_PANDA_URDF="$STACK_ASSET_SOURCE/source/extensions/isaacsim.asset.importer.urdf/data/urdf/robots/franka_description/robots/panda_arm_hand.urdf"
    python toolkits/lerobot/prepare_stack_cube_data.py prepare-panda \
      --source "$STACK_PANDA_URDF" --output "$STACK_RUN/assets"
