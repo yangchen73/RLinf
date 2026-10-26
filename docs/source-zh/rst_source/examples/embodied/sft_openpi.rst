@@ -407,6 +407,8 @@ Pi0 + RoboTwin
 
 SFT 会把 ``full_weights.pt`` 写到 ``.../checkpoints/global_step_<N>/actor/model_state_dict/``。``openpi`` 评测可以直接加载这个 ``.pt``\ （或 ``global_step_<N>`` 目录）：加载时会剥掉 FSDP / wrapper 前缀，模型形状来自评测 YAML，不必先转成 ``model.safetensors``。
 
+使用 ``precision: null`` 或 ``precision: bf16`` 加载 ``full_weights.pt`` 时，主干参数使用 BF16，Gemma 归一化层和图像嵌入中保存的 FP32 参数保持原值。检查导出前后的 policy 一致性时，参数存储和激活精度设置应与训练一致。
+
 不要把训练的 ``openpi.task: sft`` 带到评测里——评测配置必须是 ``task: eval``\ （才会走 ``Pi0Eval`` 和观测 transform）。``config_name``、``num_action_chunks`` 与训练对齐。
 
 归一化统计也\ **不会**\ 跟着 ``full_weights.pt`` 走。现成评测 YAML 常把 ``openpi_data.norm_stats_path`` 插值成 ``${rollout.model.model_path}/.../norm_stats.json``，那是给「权重和统计在同一目录」的转换产物用的。只改 ``model_path`` 指到 SFT checkpoint 时，必须\ **另外**\ 把统计指回训练用的那份（RoboTwin：基础权重旁的 ``physical-intelligence/robotwin/<task>/norm_stats.json``；BEHAVIOR：训练时的 ``openpi_data.norm_stats_path``）。

@@ -98,6 +98,40 @@ class _ImagePreprocessingPi0(Pi0):
         return suffix
 
 
+@pytest.mark.skipif(
+    not os.environ.get("RLINF_OPENPI_TEST_MODEL_CONFIG"),
+    reason="Set RLINF_OPENPI_TEST_MODEL_CONFIG to an available Pi0.5 model YAML.",
+)
+def test_openpi_full_checkpoint_preserves_fp32_parameters(tmp_path):
+    """A real Pi0.5 checkpoint preserves every exported parameter."""
+    cfg = OmegaConf.load(os.environ["RLINF_OPENPI_TEST_MODEL_CONFIG"])
+    cfg.precision = None
+    cfg.openpi.task = "eval"
+    source = get_model(cfg)
+    parameters = dict(source.named_parameters())
+    for name in (
+        "img.stem.weight",
+        "img.pos_embedding",
+        "llm.layers.0.pre_attention_norms.1.ada_modulation.weight",
+        "action_out_proj.weight",
+    ):
+        parameter = parameters[name]
+        assert parameter.dtype == torch.float32
+        with torch.no_grad():
+            parameter.reshape(-1)[0] = 0.123456789
+
+    checkpoint = tmp_path / "model_state_dict"
+    checkpoint.mkdir()
+    torch.save(source.state_dict(), checkpoint / "full_weights.pt")
+    cfg.model_path = str(tmp_path)
+    restored = get_model(cfg).state_dict()
+    expected = source.state_dict()
+    assert restored.keys() == expected.keys()
+    for name, value in expected.items():
+        assert restored[name].dtype == value.dtype, name
+        torch.testing.assert_close(restored[name], value, rtol=0, atol=0, msg=name)
+
+
 @pytest.mark.parametrize("eval_sft_image_crop", [False, True])
 @pytest.mark.parametrize(
     "device",

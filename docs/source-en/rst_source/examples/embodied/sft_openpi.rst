@@ -471,6 +471,11 @@ eval can load that ``.pt`` (or the ``global_step_<N>`` directory) directly:
 wrapper / FSDP prefixes are stripped in memory, and the eval YAML supplies the
 model shape. You do **not** need to convert to ``model.safetensors`` first.
 
+Loading ``full_weights.pt`` with ``precision: null`` or ``precision: bf16``
+uses BF16 backbone weights and retains saved FP32 Gemma normalization and
+image embedding parameters. Keep parameter storage and activation precision
+consistent with training when checking export parity.
+
 Do not copy training ``openpi.task: sft`` into eval. Eval configs must use
 ``task: eval`` (that selects ``Pi0Eval`` and observation transforms). Keep
 ``config_name`` and ``num_action_chunks`` aligned with training.
