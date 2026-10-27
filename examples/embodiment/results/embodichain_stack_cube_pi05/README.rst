@@ -20,3 +20,51 @@ Inspect the measured seed 0 SFT-to-PPO comparisons and their runtime identities 
 The workflow adds task-wrapper registration, a separate deterministic inference crop, and public reward fixtures under ``tests/fixtures/embodichain_stack_cube/``. Run ``toolkits/lerobot/compare_stack_cube_rewards.py`` to repeat the pinned-source comparison; fixture provenance and the command are documented beside the samples. Historical training figures above retain their recorded source snapshot. The current draft wires separate public-input PPO and SFT/resume CI jobs; remote execution and public release of the V2 dataset and learned weights remain pending.
 
 ``takeover_validation.json`` records the checks rerun for the main-branch update on 2026-10-24. It covers the fresh uv installation, public-video audit, two-rank SFT save/resume, native expert collection and action replay, and a short public-input PPO run. These checks validate pipeline execution and checkpoint behavior; the original author's policy-quality measurements above retain their recorded source snapshot.
+
+Takeover Quality Measurements
+-----------------------------
+
+Use ``takeover_quality.json`` and ``takeover_quality_curve.csv`` to inspect the
+new seed-0 comparison on 32 fixed validation requests. Each learned-policy run
+executes 450 physical control steps with batch size 8, H10/C5 and 10 denoising
+steps. Final success requires released fingers and 20 consecutive stable steps.
+The physical audit recomputes geometry and speeds and checks executed commands
+against saved predictions. All candidates use the corrected export loader.
+
+SFT steps 15,000, 25,000 and 27,000 achieve 26/32, 21/32 and 24/32 final stable
+successes. The selected checkpoint remains step 15,000; its learning-rate
+schedule was configured for 30,000 steps. The late checkpoints were evaluated
+from existing files with no additional SFT training.
+
+PPO v4 iterations 5, 10 and 15 achieve 23/32, 25/32 and 21/32. The next fixed
+stage resumes iteration 10 with a stable-hold reward and 128 parallel scenes;
+iterations 11 through 15 achieve 23/32, 22/32, 24/32, 24/32 and 24/32. These
+results have not demonstrated PPO improvement over the selected SFT model.
+Several settings changed together, so the comparison does not isolate a cause.
+The old PPO parent already contains rounded values in 40 frozen FP32 tensors;
+their effect on task quality has not been established.
+
+.. figure:: takeover_quality_curve.png
+   :align: center
+   :width: 95%
+
+   Final stable successes on the same validation cohort. PPO v5 starts from
+   v4 iteration 10; the SFT baseline is shown separately.
+
+The new demonstrations contain 256 episodes and 97,280 frames. Their cohort,
+normalization and evaluator hashes differ from the original 27-request study;
+keep these measurements separate from the historical results. The 32 requests
+were reused for selection, only one training seed was evaluated, and the final
+100-request test remains unused. Full checkpoints, demonstrations, trajectories,
+the batched experiment evaluator and logs remain in the local handoff. The
+report records their identities; it does not provide a public model release.
+
+A fresh PPO stage started directly from the corrected SFT step-15,000 deployment.
+Its two actor and rollout ranks match the SFT policy fingerprint exactly; a
+64-row replay has zero ratio/value error before any optimizer update. This
+initial check covers critic gradients during warmup. The stage stopped after
+one complete iteration: both ranks recorded 270 optimizer updates, including
+45 critic-only warmup updates; the replacement optimizer contains 198 states
+at Adam step 225. The export has 190 changed policy tensors, 477 unchanged
+frozen tensors and 675 finite tensors with their original dtypes. An updated
+policy-quality result from that stage is not included in this report.

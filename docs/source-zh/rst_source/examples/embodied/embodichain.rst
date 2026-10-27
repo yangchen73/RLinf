@@ -583,6 +583,44 @@ Smoke 使用 NCCL socket 通信。设置 ``STACK_CUBE_NCCL_SOCKET_FALLBACK=0`` �
 
 4,095 个样本覆盖 GPU 实测状态，以及几何和夹爪容差边界。报告记录源码与输入 hash、reward 误差及掉落判据的一致性。该检查使用固定版本的 manager、判定函数源码和轻量场景对象；原生 IsaacLab 物理仿真与 policy 迁移属于另外的验证。
 
+接手后的 Stack Cube 验证
+----------------------------------------
+
+当前以 SFT 第 15,000 步 checkpoint 作为实测基线。本次接手使用新采集的 EmbodiChain 专家数据，在固定的 32 个 validation 请求上比较模型；每集执行 450 个物理控制步，采用 H10/C5、10 步 denoising，末尾要求连续 20 步稳定完成。所有导出参数均通过保留 FP32 精度的 loader 加载，每份结果均通过独立物理执行审计。
+
+.. list-table:: 接手后的单 seed validation
+   :header-rows: 1
+   :widths: 55 25 20
+
+   * - 模型
+     - 末尾稳定成功
+     - 成功率
+   * - SFT，第 15,000 步
+     - 26/32
+     - 81.25%
+   * - SFT，第 25,000 步
+     - 21/32
+     - 65.625%
+   * - SFT，第 27,000 步
+     - 24/32
+     - 75.00%
+   * - 已审计 PPO v4 中最佳，第 10 轮
+     - 25/32
+     - 78.125%
+   * - 已审计稳定保持奖励 PPO v5 中最佳
+     - 24/32
+     - 75.00%
+
+PPO v5 从 v4 第 10 轮恢复，同时修改了奖励、成功后参与更新的帧及 batch 设置。该阶段的五份已审计 checkpoint 均未超过选定的 SFT 模型。这些实验验证了流程执行并给出实测 validation 表现，尚未证明 PPO 带来提升。
+
+.. figure:: ../../../../../examples/embodiment/results/embodichain_stack_cube_pi05/takeover_quality_curve.png
+   :align: center
+   :width: 90%
+
+   接手后经审计的 validation 计数；SFT 步数和 PPO 轮数采用不同计数。
+
+通过 :download:`质量报告 <../../../../../examples/embodiment/results/embodichain_stack_cube_pi05/takeover_quality.json>` 和 :download:`曲线数据 <../../../../../examples/embodiment/results/embodichain_stack_cube_pi05/takeover_quality_curve.csv>` 查看 checkpoint、cohort、normalization 及审计 hash。本次实验的数据和请求与下文历史比较不同。32 个请求被重复用于选模，目前仅评估一个训练 seed，最终 100 个留出 test 请求尚未使用。本次示范数据和训练权重保存在本地，本次修改未公开发布这些资产。
+
 Stack Cube 历史验证结果
 ----------------------------------------
 

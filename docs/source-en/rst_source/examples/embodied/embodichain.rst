@@ -891,6 +891,58 @@ The report records source and input hashes, reward error and drop-predicate
 agreement. This executes pinned manager and predicate source with lightweight
 scene objects; native IsaacLab physics and policy transfer are separate checks.
 
+Takeover Stack Cube Validation
+----------------------------------------
+
+Use the selected SFT step-15,000 checkpoint as the current measured baseline.
+The takeover compares new EmbodiChain expert demonstrations on 32 fixed
+validation requests, with 450 physical steps, H10/C5, 10 denoising steps and a
+20-step final stability requirement. The exported parameters are loaded with
+the FP32-preserving loader and each result passes an independent physical
+execution audit.
+
+.. list-table:: Takeover validation, one training seed
+   :header-rows: 1
+   :widths: 55 25 20
+
+   * - Model
+     - Final Stable Success
+     - Rate
+   * - SFT, step 15,000
+     - 26/32
+     - 81.25%
+   * - SFT, step 25,000
+     - 21/32
+     - 65.625%
+   * - SFT, step 27,000
+     - 24/32
+     - 75.00%
+   * - Best audited PPO v4, iteration 10
+     - 25/32
+     - 78.125%
+   * - Best audited stable-hold PPO v5
+     - 24/32
+     - 75.00%
+
+PPO v5 resumes v4 iteration 10 and changes the reward, post-success update mask
+and batch settings together. None of its five audited checkpoints exceeds the
+selected SFT model. These experiments establish pipeline execution and measured
+validation performance; they have not demonstrated PPO improvement.
+
+.. figure:: ../../../../../examples/embodiment/results/embodichain_stack_cube_pi05/takeover_quality_curve.png
+   :align: center
+   :width: 90%
+
+   Audited takeover validation counts; SFT checkpoints and PPO iterations use different step counters.
+
+Inspect :download:`the quality report <../../../../../examples/embodiment/results/embodichain_stack_cube_pi05/takeover_quality.json>`
+and :download:`the curve data <../../../../../examples/embodiment/results/embodichain_stack_cube_pi05/takeover_quality_curve.csv>`
+for checkpoint, cohort, normalization and audit hashes. This study uses new data
+and a different cohort from the historical comparison below. The 32 requests
+were reused for selection, one training seed was assessed, and the final
+100-request test remains unused. The demonstrations and trained checkpoints
+are retained locally and have no public release in this change.
+
 Historical Stack Cube Validation
 ----------------------------------------
 
