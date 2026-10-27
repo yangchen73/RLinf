@@ -49,7 +49,7 @@ their effect on task quality has not been established.
    :width: 95%
 
    Final stable successes on the same validation cohort. PPO v5 starts from
-   v4 iteration 10; the SFT baseline is shown separately.
+   v4 iteration 10; PPO v6 starts a new counter from the corrected SFT policy.
 
 The new demonstrations contain 256 episodes and 97,280 frames. Their cohort,
 normalization and evaluator hashes differ from the original 27-request study;
@@ -66,5 +66,7 @@ initial check covers critic gradients during warmup. The stage stopped after
 one complete iteration: both ranks recorded 270 optimizer updates, including
 45 critic-only warmup updates; the replacement optimizer contains 198 states
 at Adam step 225. The export has 190 changed policy tensors, 477 unchanged
-frozen tensors and 675 finite tensors with their original dtypes. An updated
-policy-quality result from that stage is not included in this report.
+frozen tensors and 675 finite tensors with their original dtypes. Its checkpoint
+achieves 26/32 stable successes, with two gains and two regressions relative to
+SFT. Training and validation have finished; the selected model remains SFT
+step 15,000 because PPO has not improved the measured success count.

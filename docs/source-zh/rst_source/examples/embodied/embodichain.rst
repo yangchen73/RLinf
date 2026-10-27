@@ -612,14 +612,19 @@ Smoke 使用 NCCL socket 通信。设置 ``STACK_CUBE_NCCL_SOCKET_FALLBACK=0`` �
    * - 已审计稳定保持奖励 PPO v5 中最佳
      - 24/32
      - 75.00%
+   * - 从 SFT 第 15,000 步启动的 PPO v6，第 1 轮
+     - 26/32
+     - 81.25%
 
 PPO v5 从 v4 第 10 轮恢复，同时修改了奖励、成功后参与更新的帧及 batch 设置。该阶段的五份已审计 checkpoint 均未超过选定的 SFT 模型。这些实验验证了流程执行并给出实测 validation 表现，尚未证明 PPO 带来提升。
+
+新 PPO 阶段直接从修复加载精度后的 SFT 第 15,000 步 policy 开始。首份完整 checkpoint 在相同请求上取得 26/32，相对 SFT 新增两个成功案例，也有两个退步案例。训练在该完整 checkpoint 处停止，独立评估已结束。继续将 SFT 模型作为选定基线；新 PPO checkpoint 的成功计数没有提升。
 
 .. figure:: ../../../../../examples/embodiment/results/embodichain_stack_cube_pi05/takeover_quality_curve.png
    :align: center
    :width: 90%
 
-   接手后经审计的 validation 计数；SFT 步数和 PPO 轮数采用不同计数。
+   接手后经审计的 validation 计数；新 PPO 阶段的轮数单独从零开始。
 
 通过 :download:`质量报告 <../../../../../examples/embodiment/results/embodichain_stack_cube_pi05/takeover_quality.json>` 和 :download:`曲线数据 <../../../../../examples/embodiment/results/embodichain_stack_cube_pi05/takeover_quality_curve.csv>` 查看 checkpoint、cohort、normalization 及审计 hash。本次实验的数据和请求与下文历史比较不同。32 个请求被重复用于选模，目前仅评估一个训练 seed，最终 100 个留出 test 请求尚未使用。本次示范数据和训练权重保存在本地，本次修改未公开发布这些资产。
 

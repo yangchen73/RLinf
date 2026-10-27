@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-10-27T03:39:27.951942+00:00",
+  "recorded_utc": "2026-10-27T03:56:25.022052+00:00",
   "purpose": "Takeover quality measurements on a fixed development-validation cohort; checkpoint selection only.",
   "source_commit": "793ee603d19f75ab25a3d007c3313e92a57bd3fe",
   "original_training_source_commit": "289e74bf10aad2008cba6717146a87a9d08775ce",
@@ -314,6 +314,29 @@
       "physical_steps_per_request": 450,
       "commands_equal_saved_predictions": true,
       "geometry_and_speed_predicates_recomputed": true
+    },
+    {
+      "kind": "ppo_v6",
+      "step": 1,
+      "counts": {
+        "first_layer_once": 31,
+        "full_stack_once": 28,
+        "full_stack_at_end": 26,
+        "stable_once": 26,
+        "stable_at_end": 26
+      },
+      "requests": 32,
+      "stable_success_rate": 0.8125,
+      "source_sft_step": 15000,
+      "weights_sha256": "b7868cab5c359479431d77fbf9d43a15e49ca1cb756663633135628024ad936e",
+      "loaded_policy_sha256": "5c4b9f1f5a6185579aaacb42bdae94aea4d7c60bb92836e716debeccda506853",
+      "summary_sha256": "ec7dd7be6ff626d93dc08f5d7b23426ecd09179945237857de8e4733408b37ac",
+      "run_manifest_sha256": "987718695f2629fb1844d7a5698102fa3cd76400102627d7cefbc2af73275a99",
+      "physical_audit_sha256": "2d9bda89ddecaa454d61f6c8d4d18e4211dfc2f8086f86de7db06e1293f3b337",
+      "local_evidence_directory": "ppo/native-ppo-sft15000-v6-fresh/evaluations/iteration_1",
+      "physical_steps_per_request": 450,
+      "commands_equal_saved_predictions": true,
+      "geometry_and_speed_predicates_recomputed": true
     }
   ],
   "selected": {
@@ -327,7 +350,9 @@
   "sft_schedule": {
     "selected_optimizer_step": 15000,
     "learning_rate_schedule_steps": 30000,
-    "warmup_steps": 1000
+    "warmup_steps": 1000,
+    "default_runner_max_steps": 15000,
+    "config_commit": "3b184ef656a83461055426dc262270073c2f1a1a"
   },
   "ppo_v4": {
     "starting_sft_step": 15000,
@@ -342,7 +367,7 @@
     "ignore_terminations": false,
     "best_audited_iteration": 10,
     "best_successes": 25,
-    "inherited_frozen_precision": "The old initialization serialized BF16-rounded values in40 frozen FP32 tensors; corrected loading reads those saved values exactly. Task-quality causality is unproven.",
+    "inherited_frozen_precision": "The old initialization serialized BF16-rounded values in 40 frozen FP32 tensors; corrected loading reads those saved values exactly. Task-quality causality is unproven.",
     "frozen_precision_audit_sha256": "a8290053dfe6a3a31115e3bfcd0f7586a72e4d26a8600b7839354adf12d73ffc"
   },
   "ppo_v5": {
@@ -372,7 +397,7 @@
     "final_test_used": false,
     "final_test_requests": 100,
     "additional_sft_updates_for_late_weight_evaluation": 0,
-    "fresh_ppo_stage": "Stopped after the first complete PPO iteration. Saved policy, critic and optimizer updates are independently verified; no updated-policy quality result is included in this report."
+    "fresh_ppo_stage": "Stopped after the first complete PPO iteration; its independently audited validation result is 26/32, equal to the selected SFT model. Both training and validation processes have exited."
   },
   "limitations": [
     "One training seed and32 validation requests reused for selection; these scores are not independent final-test estimates.",
@@ -406,8 +431,31 @@
     },
     "weights_sha256": "b7868cab5c359479431d77fbf9d43a15e49ca1cb756663633135628024ad936e",
     "status": "stopped_at_checkpoint",
-    "policy_quality_pending": true,
+    "policy_quality_pending": false,
     "audit_sha256": "27a6b458b4ae928cf07b066210fb3e64860ec0d6a770eb00e5227d5aacec67e2",
     "local_evidence_directory": "ppo/native-ppo-sft15000-v6-fresh"
+  },
+  "ppo_v6": {
+    "starting_policy": "Corrected SFT15000 deployment",
+    "completed_iterations": 1,
+    "stable_successes": 26,
+    "requests": 32,
+    "paired_outcomes_vs_sft15000": {
+      "retained_success": 24,
+      "remaining_failure": 4,
+      "new_success": 2,
+      "regression": 2
+    },
+    "policy_lr": 1e-06,
+    "critic_lr": 0.0001,
+    "critic_warmup_updates": 45,
+    "training_scenes": 128,
+    "micro_batch_size": 64,
+    "global_batch_size": 256,
+    "reward": "0.01 per stable-hold frame",
+    "ignore_terminations": true,
+    "training_stopped_by_user": true,
+    "additional_training_authorized": false,
+    "quality_scope": "One updated checkpoint on the same 32 selection requests; equal success count does not establish an improvement."
   }
 }

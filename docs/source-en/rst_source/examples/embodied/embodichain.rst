@@ -929,17 +929,26 @@ execution audit.
    * - Best audited stable-hold PPO v5
      - 24/32
      - 75.00%
+   * - Fresh PPO v6 from SFT step 15,000, iteration 1
+     - 26/32
+     - 81.25%
 
 PPO v5 resumes v4 iteration 10 and changes the reward, post-success update mask
 and batch settings together. None of its five audited checkpoints exceeds the
 selected SFT model. These experiments establish pipeline execution and measured
 validation performance; they have not demonstrated PPO improvement.
 
+The fresh PPO stage starts directly from the corrected SFT step-15,000 policy.
+Its first saved iteration scores 26/32, with two gains and two regressions
+relative to SFT on the same requests. Training stopped at that complete
+checkpoint and its independent evaluation finished. Keep the SFT model as the
+selected baseline; the fresh PPO result has not improved its success count.
+
 .. figure:: ../../../../../examples/embodiment/results/embodichain_stack_cube_pi05/takeover_quality_curve.png
    :align: center
    :width: 90%
 
-   Audited takeover validation counts; SFT checkpoints and PPO iterations use different step counters.
+   Audited takeover validation counts. The fresh PPO stage starts its own iteration counter at zero.
 
 Inspect :download:`the quality report <../../../../../examples/embodiment/results/embodichain_stack_cube_pi05/takeover_quality.json>`
 and :download:`the curve data <../../../../../examples/embodiment/results/embodichain_stack_cube_pi05/takeover_quality_curve.csv>`
