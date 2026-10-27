@@ -512,10 +512,16 @@ These commands freeze qualification requests and the first 120/27 formal
 train/validation allocation; they do not establish expert feasibility.
 Record unsuccessful requests and their spatial coverage before deciding how
 to acquire the target number of successful demonstrations. The corresponding
-training config is ``embodichain_stack_cube_sft_openpi_pi05``: at most 30,000
-steps, 1,000 warmup steps, and exports every 1,000 steps. Run seeds 0, 1, and 2
-from the same base checkpoint, subject to measured GPU time and checkpoint
-storage requirements.
+training config is ``embodichain_stack_cube_sft_openpi_pi05``: stop at 15,000
+optimizer steps, retain the 30,000-step learning-rate schedule and 1,000-step
+warmup, and export every 1,000 steps. The reference-data recipe inherits these
+limits. Start with ``actor.seed=0``; assess additional seeds separately before
+claiming stability across training runs.
+
+To use an existing complete step-15,000 export, point ``STACK_CHECKPOINT`` to
+that checkpoint and run the evaluation commands above. The runner limit does
+not require another SFT run or modify saved weights. Keeping the learning-rate
+schedule unchanged preserves the settings used by the measured checkpoint.
 
 For the broader layouts, select the formal expert deployment explicitly with
 ``--task-config``. It applies the same 90° rotation about each cube's local

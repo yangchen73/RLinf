@@ -389,7 +389,9 @@ Statistics 命令输出 ``norm_stats.json`` 和包含源文件 hashes 的 manife
      --profile formal --split val --seed 50000 --episodes 27 \
      --output "$STACK_RUN/requests/formal_val.json"
 
-这些命令固定分阶段验证请求，以及第一批 120/27 个正式 train/validation 请求，本身不证明专家可行性。保留失败请求及其空间分布，再决定如何获得目标数量的成功演示。正式训练配置为 ``embodichain_stack_cube_sft_openpi_pi05``：最多 30,000 步、1,000 步 warmup、每 1,000 步导出权重。Seeds 0、1、2 均从相同 base checkpoint 开始，启动前依据实测吞吐和 checkpoint 大小安排 GPU 时间与存储。
+这些命令固定分阶段验证请求，以及第一批 120/27 个正式 train/validation 请求，本身不证明专家可行性。保留失败请求及其空间分布，再决定如何获得目标数量的成功演示。正式训练配置为 ``embodichain_stack_cube_sft_openpi_pi05``：在第 15,000 个 optimizer step 停止，保留 30,000 步学习率计划和 1,000 步 warmup，每 1,000 步导出权重。参考数据 recipe 继承相同步数设置。先使用 ``actor.seed=0``；其他 seed 需单独评估后，才能对训练稳定性作出结论。
+
+使用已有且完整的第 15,000 步导出时，将 ``STACK_CHECKPOINT`` 指向该 checkpoint，并执行上文评估命令即可。修改 runner 上限不要求再次启动 SFT，也不会改写已保存权重。保留学习率计划，可以沿用实测 checkpoint 的训练设置。
 
 较大空间范围的专家采集使用 ``--task-config`` 显式选择正式专家配置。该配置对两次顶部抓取统一施加绕积木局部竖直轴的 90° 旋转，只改变专家抓取规划；policy 任务的物理参数、相机、控制器和成功标准保持一致。省略此参数时仍使用原有 smoke 专家。
 
